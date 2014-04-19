@@ -31,9 +31,9 @@ particles_size = 3      #Size of particles displayed
 scale_factor = 1.0     #Scale the image dimensions
 threshhold = 0.5       #Threshold brightness value, determines which points to print. 
                                     #Higher value means lighter colors are printed.
-max_recursion = 1000  #Maximum length of a continuous line.
-frames = 20000            #The total length of time the animation runs for
-interval = 0.001             #The interval between animation actions
+max_recursion = 300  #Maximum length of a continuous line.
+frames = 300            #The total length of time the animation runs for
+interval = 1           #The interval between animation actions
 
 image_X = []            #Used to store the x-coordinates of each particle
 image_Y = []            #Used to store the y-coordinates of each particle
@@ -41,59 +41,50 @@ image_Y = []            #Used to store the y-coordinates of each particle
 parse_list = []              #data structure to store list of lines that compose the image
 line_list = []              #data structure to contain list of line objects in addition to list of lines that compose the image
 
-image_location = 'bernese.png'
-# image_location = 'bernese2.png'
-# image_location = 'tiny_maze2.png'
-# image_location = 'test_image.png'
-# image_location = 'test_image3.png'
- 
+image_location = 'images\\bernese.png'
 #read the image specified by the global variables
 read_image = mpimg.imread(image_location)
 
 # First set up the figure, the axis, and the plot element we want to animate
 fig = plt.figure()
 ax = plt.axes(xlim=(-1, len(read_image[0])/scale_factor) , ylim=(0,  1+ len(read_image)/scale_factor))
+# ax = plt.axes(xlim=(-1, 100) , ylim=(0,  100))
 
-# particles holds the locations of the particles
-# particles, = ax.plot([], [], 'bo', ms=particles_size)
-line, = ax.plot([], [], lw=2)
+# line, = ax.plot([], [], lw=2)
+
 # parse_list, = ax.plot([], [], lw=2)
 
 # initialization function: plot the background of each frame
 def init():
-    
+    print "Started init"
     # line.set_data([], [])
-    # particles.set_data([], [])
     
-    # line.set_data([], [])
-    # particles.set_data([], [])
-
-    return line,
-    # return line, particles,
+    return_line = []
+    for x_list, y_list, anim_line in line_list:
+        anim_line.set_data(x_list, y_list)
+        # anim_line.set_data([], [])
+        return_line.append(anim_line)
+    
+    print "Finished init"
+    return tuple(return_line)
+    # return line, 
     # return particles,
 
 # animation function.  This is called sequentially
 def animate(i):
-    global image_X, image_Y
-    
+    print i
     return_line = []
     
-    line.set_data(image_X[0:i], image_Y[0:i])
-    # print line
-    # particles.set_data(image_X, image_Y)
-    # particles.set_data(image_X[0:i], image_Y[0:i])
-    # particles.set_data(image_X[0:10*i], image_Y[0:10*i])
-    # particles.set_markersize(particles_size)
+    # global image_X, image_Y
+    # line.set_data(image_X[0:i], image_Y[0:i])
     
-    # for x_list, y_list, anim_line in line_list:
-        # anim_line.set_data(x_list[0:i], y_list[0:i])
-        # return_line.append(anim_line)
-    # # for x_list, y_list in parse_list:
-        # # line.set_data(x_list[0:i], y_list[0:i])
+    for x_list, y_list, anim_line in line_list:
+        anim_line.set_data(x_list[0:i], y_list[0:i])
+        return_line.append(anim_line)
         
-    # return line, return_line
-    return line,
-    # return particles,
+    # return line, return_line,
+    return tuple(return_line)
+    # return line,
     
 def parse_image():
     global scale_factor, threshhold, read_image
@@ -135,10 +126,7 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y):
     
     #erase from image array
     # print input_y, input_x, read_image[input_y][input_x]
-    # read_image[input_y][input_x] = [0, 0, 0, 0]
-    # read_image[input_y][input_x] = [1, 1, 1]
     read_image[input_y][input_x] = [1, 1, 1, 1]
-    # print input_y, input_x, read_image[input_y][input_x]
     
     x_min = 0
     x_max = len(read_image[0])
@@ -187,35 +175,18 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y):
             # print "none"
         
 
-        
-# for row in read_image:
-    # for element in row:
-        # print element
-        
-# parse_image(image)
 parse_image()
 
-count = 1
+# line, = ax.plot([], [], lw=2)
+
 for x_list, y_list in parse_list:
     anim_line, = ax.plot([], [], lw=2)
-    # print anim_line
-    line_list.append(
-                            (
-                                x_list, 
-                                y_list, 
-                                anim_line
-                            )
-                           )
-    # print count, "\t", x_list, y_list, "\n"
-    count += 1
+
+    line_list.append((x_list, y_list, anim_line))
     
-# print image_X[0:i], image_Y[0:i]
-# print image_X[0:20]
-# print image_Y[0:20]
-                
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=frames, interval=interval, blit=True)
+                               frames=frames, interval=interval, blit=False)
 
 plt.show()
 
