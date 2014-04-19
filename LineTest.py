@@ -74,11 +74,11 @@ def animate(i):
     x0 = (x * (i+1) )/frames
     y0 = (y * (i+1) )/frames
     print x, y, i+1, frames, arm1, arm2, x0, y0
-    # theta2pos = 2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x0**2 + y0**2)) / ((x0**2 + y0**2) - (arm1 - arm2)**2) ))
-    theta2neg = -2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x0**2 + y0**2)) / ((x0**2 + y0**2) - (arm1 - arm2)**2) ))
+    theta2pos = 2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x0**2 + y0**2)) / ((x0**2 + y0**2) - (arm1 - arm2)**2) ))
+    # theta2neg = -2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x0**2 + y0**2)) / ((x0**2 + y0**2) - (arm1 - arm2)**2) ))
 
-    # theta1pos = np.arctan2(y0,x0) - np.arctan2(arm2*np.sin(theta2pos), arm1 + arm2 * np.cos(theta2pos))
-    theta1neg = np.arctan2(y0,x0) - np.arctan2(arm2*np.sin(theta2neg), arm1 + arm2 * np.cos(theta2neg))
+    theta1pos = np.arctan2(y0,x0) - np.arctan2(arm2*np.sin(theta2pos), arm1 + arm2 * np.cos(theta2pos))
+    # theta1neg = np.arctan2(y0,x0) - np.arctan2(arm2*np.sin(theta2neg), arm1 + arm2 * np.cos(theta2neg))
 
     x1p = arm1 * np.cos(theta1pos)
     y1p = arm1 * np.sin(theta1pos)
@@ -90,16 +90,16 @@ def animate(i):
     x2n = arm2 * np.cos(theta2neg + theta1neg) + x1n
     y2n = arm2 * np.sin(theta2neg + theta1neg) + y1n
 
-    # print "Positive:\n\t (" , x1p , ", " , y1p , ")\t(" , x2p , ", " , y2p , ")\n"
-    print "Negative:\n\t (" , x1n , ", " , y1n , ")\t(" , x2n , ", " , y2n , ")\n"
+    print "Positive:\n\t (" , x1p , ", " , y1p , ")\t(" , x2p , ", " , y2p , ")\n"
+    # print "Negative:\n\t (" , x1n , ", " , y1n , ")\t(" , x2n , ", " , y2n , ")\n"
 
 
     # x = np.linspace(0, 2, 10)
-    # x = (0, x1p, x2p)
-    x = (0, x1n, x2n)
+    x = (0, x1p, x2p)
+    # x = (0, x1n, x2n)
     # y = np.sin(2 * np.pi * (x - 0.01 * i))
-    # y = (0, y1p, y2p)
-    y = (0, y1n, y2n)
+    y = (0, y1p, y2p)
+    # y = (0, y1n, y2n)
     line.set_data(x, y)
     return line,
 
