@@ -49,6 +49,12 @@ theta1pos= 0.0       #The angle of servo1
 theta2pos= 0.0       #The angle of servo2
 theta3pos= 0.0       #The angle of servo3
 
+rad2deg = 180/np.pi
+
+theta1_min = 0      #offset to keep theta1 positive
+pen_down  = np.pi/2     #angle when pen is down
+pen_up = 0                  #angle when pen is up
+
 image_X = []            #Used to store the x-coordinates of each particle
 image_Y = []            #Used to store the y-coordinates of each particle
 
@@ -56,6 +62,7 @@ parse_list = []           #data structure to store list of lines that compose th
 line_list = []              #data structure to contain list of line objects in addition to list of lines that compose the image
 angle_list = []           #data structure to store servo angles for robotic arm
 
+output_file = 'output.csv'
 image_location = 'images\\bernese2.png'
 #read the image specified by the global variables
 read_image = mpimg.imread(image_location)
@@ -195,9 +202,8 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y):
 # takes as input the parse_list containing lines that compose the parsed image
 # generates a list of angles for the three servos of the robot arm
 def generate_arm_angles():
-    #off the wall random guesses for what up and down are for the robot arm
-    down  = 0.87
-    up = 0.20
+    global pen_up, pen_down
+
     
     # angle_list
     for x_list, y_list in parse_list:
@@ -205,35 +211,44 @@ def generate_arm_angles():
         y_init = y_list[0]
         theta1_final = 0
         theta2_final = 0
-        
-        # print x_init, y_init, arm1, arm2
-        # print (arm1 + arm2)**2
-        # print (x_init**2 + y_init**2)
-        # print (arm1 - arm2)**2
-        # print ((arm1 + arm2)**2 - (x_init**2 + y_init**2)) 
-        # print ((x_init**2 + y_init**2) - (arm1 - arm2)**2)
-        # np.sqrt( ((arm1 + arm2)**2 - (x_init**2 + y_init**2)) / ((x_init**2 + y_init**2) - (arm1 - arm2)**2) )
-    
+            
         #initially, pen is over first point but does not touch it (such a tease)
-        theta3pos = up
-        theta2pos = 2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x_init**2 + y_init**2)) / ((x_init**2 + y_init**2) - (arm1 - arm2)**2) ))
+        theta3pos = pen_up
+        theta2pos =2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (x_init**2 + y_init**2)) / ((x_init**2 + y_init**2) - (arm1 - arm2)**2) ))
         theta1pos = np.arctan2(y_init,x_init) - np.arctan2(arm2*np.sin(theta2pos), arm1 + arm2 * np.cos(theta2pos))
 
-        angle_list.append([theta1pos, theta2pos, theta3pos])
+        append_angle(theta1pos,theta2pos,theta3pos)
                 
         for point_y in y_list:
             for point_x in x_list:
-                theta3pos = down
+                theta3pos = pen_down
                 theta2pos = 2.0 * np.arctan(np.sqrt( ((arm1 + arm2)**2 - (point_x**2 + point_y**2)) / ((point_x**2 + point_y**2) - (arm1 - arm2)**2) ))
-                theta1pos = np.arctan2(point_y,point_x) - np.arctan2(arm2*np.sin(theta2pos), arm1 + arm2 * np.cos(theta2pos))
+                theta1pos = np.arctan2(point_y,point_x) - np.arctan2(arm2*np.sin(theta2pos), arm1 + arm2 * np.cos(theta2pos))            
                 
                 theta2_final = theta2pos
                 theta1_final = theta1pos
                 
-                angle_list.append([theta1pos, theta2pos, theta3pos])
+                append_angle(theta1pos,theta2pos,theta3pos)
                 
-        angle_list.append([theta1_final, theta2_final, up])
-            
+        append_angle(theta1_final,theta2_final,pen_up)
+
+def append_angle(theta1 = -1, theta2 = -1, theta3 = -1):
+    global theta1_min
+    
+    # if((theta1 < 0) or (theta2 < 0) or (theta3 < 0)):
+        # print "Tried to append negative angle"
+        # return
+    
+    theta1 = (np.floor(rad2deg * theta1 * 100) / 100)
+    theta2 = (np.floor(rad2deg * theta2 * 100) / 100)
+    theta3 = (np.floor(rad2deg * theta3 * 100) / 100)    
+    
+    angle_list.append([theta1,theta2,theta3])
+    
+    if theta3 < theta1_min:
+        theta1_min = theta3
+    
+        
 parse_image()
 
 # # call the animator.  blit=True means only re-draw the parts that have changed.
@@ -244,8 +259,18 @@ parse_image()
 
 generate_arm_angles()
 
-for angle_set in angle_list:
-    print angle_set
+output_fh= open(output_file, 'w')
+
+for theta1, theta2, theta3 in angle_list:
+    # print angle_set
+    #correct theta1 to ensure it stays positive
+    theta1 = theta1 - theta1_min
+    
+    output_line = theta1,theta2,theta3
+    output_fh.write(str(output_line))
+    output_fh.write("\n")
+    
+output_fh.close()
 
 
 
