@@ -261,14 +261,26 @@ generate_arm_angles()
 
 output_fh= open(output_file, 'w')
 
+array_count = 0
+
 for theta1, theta2, theta3 in angle_list:
     # print angle_set
     #correct theta1 to ensure it stays positive
     theta1 = theta1 - theta1_min
     
-    output_line = theta1,theta2,theta3
-    output_fh.write(str(output_line))
+    output_line1 = "image_array[%d][0] = %f;" % (array_count,theta1)
+    output_fh.write(str(output_line1))
     output_fh.write("\n")
+    
+    output_line2 = "image_array[%d][1] = %f;" % (array_count,theta2)
+    output_fh.write(str(output_line2))
+    output_fh.write("\n")
+    
+    output_line3 = "image_array[%d][2] = %f;" % (array_count,theta3)
+    output_fh.write(str(output_line3))
+    output_fh.write("\n")
+        
+    array_count = array_count + 1
     
 output_fh.close()
 
