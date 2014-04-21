@@ -33,6 +33,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import matplotlib.image as mpimg
+import serial
 
 particles_size = 3      #Size of particles displayed
 scale_factor = 1.0     #Scale the image dimensions
@@ -245,8 +246,32 @@ def append_angle(theta1 = -1, theta2 = -1, theta3 = -1):
     
     angle_list.append([theta1,theta2,theta3])
     
-    if theta3 < theta1_min:
-        theta1_min = theta3
+    if theta1 < theta1_min:
+        theta1_min = theta1
+    
+def write_angle(theta_selection = 'Z', angle = -1.0):
+    if ((theta_selection is 'A') or (theta_selection is 'B') or (theta_selection is 'C')):
+        output_string = ''
+        
+        output_string += '['
+        output_string += theta_selection
+        output_string += "%.2f" % angle
+        output_string += ']'
+        
+        # print output_string
+        serial_connection.write(output_string)
+
+        input_character = serial_connection.read()
+        # print input_character
+        
+        # loop until arduino signals it has finished reading current angle value
+        while input_character != 'X':
+            input_character = serial_connection.read()        
+            # print input_character
+            
+        # print input_character
+    else:
+        return
     
         
 parse_image()
@@ -259,31 +284,35 @@ parse_image()
 
 generate_arm_angles()
 
-output_fh= open(output_file, 'w')
 
-array_count = 0
+serial_connection = serial.Serial("COM4", 9600)
+input_character  = " "
+connected = False
 
-for theta1, theta2, theta3 in angle_list:
-    # print angle_set
-    #correct theta1 to ensure it stays positive
-    theta1 = theta1 - theta1_min
-    
-    output_line1 = "image_array[%d][0] = %f;" % (array_count,theta1)
-    output_fh.write(str(output_line1))
-    output_fh.write("\n")
-    
-    output_line2 = "image_array[%d][1] = %f;" % (array_count,theta2)
-    output_fh.write(str(output_line2))
-    output_fh.write("\n")
-    
-    output_line3 = "image_array[%d][2] = %f;" % (array_count,theta3)
-    output_fh.write(str(output_line3))
-    output_fh.write("\n")
+# loop until the arduino is ready for input
+while not connected:
+    while input_character != 'X':
+        input_character = serial_connection.read()
         
-    array_count = array_count + 1
-    
-output_fh.close()
+    connected = True
 
+count = 0
+    
+for theta1, theta2, theta3 in angle_list:
+    if(count < 50):
+        #correct theta1 to ensure it stays positive
+        theta1 = theta1 - theta1_min
+        
+        print "[", theta1,",", theta2,",", theta3,"]"
+        
+        write_angle('A', theta1)
+        write_angle('B', theta2)
+        write_angle('C', theta3)
+        
+        count += 1
+
+# close the port and end the program
+serial_connection.close()
 
 
     

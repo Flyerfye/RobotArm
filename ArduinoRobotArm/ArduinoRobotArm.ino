@@ -21,9 +21,9 @@ void setup() {
   
   pinMode(13, OUTPUT);
   
-  theta1 = 0;
-  theta2 = 0;
-  theta3 = 0;
+  theta1 = -1;
+  theta2 = -1;
+  theta3 = -1;
   
   Serial.write('X');
 }
@@ -33,6 +33,8 @@ void read_in_coordinates()
 }
   
 void loop() {
+  char theta_selection = ' ';
+  
   if(Serial.available() > 0)
   {
     char input_character = Serial.read();
@@ -42,6 +44,14 @@ void loop() {
     
     if(input_character == '[')
     {
+      while((input_character != 'A') &&
+            (input_character != 'B') &&
+            (input_character != 'C'))            
+      {
+        input_character = Serial.read();
+        theta_selection = input_character;
+      }
+      
       while(input_character != ']')
       {
         if(Serial.available() > 0)
@@ -53,25 +63,47 @@ void loop() {
             input_string.concat(input_character);
           }
           
-          //C for continue writing input value
-          Serial.write('C');
+          //> for continue writing input value
+         //Serial.write('>');
+          Serial.write(input_character);
         }
       }
+      
+      delay(1000);
+      //int length = input_string.length();
+
+      //Serial.println(length);
+      Serial.println(theta_selection);
       
       if(input_string.length() > 0)
       {
           char floatbuf[32];
           input_string.toCharArray(floatbuf, sizeof(floatbuf));
           float input_number = atof(floatbuf);
+          Serial.write(theta_selection);
           
-          Serial.println(input_number);
-          for(int i = 0; i<input_number; i++)
+          if(theta_selection == 'A')
           {
-            digitalWrite(13, HIGH);
-            delay(1000);
-            digitalWrite(13, LOW);
-            delay(1000);
+            theta1 = input_number;
+          } 
+          else if (theta_selection == 'B')
+          {
+            theta2 = input_number;
           }
+          else if (theta_selection == 'C')
+          {
+            theta3 = input_number;
+          }
+          else
+          {
+            //assign nothing to anything at all
+          }
+          
+          //Serial.print(theta_selection);
+          //Serial.print(": ");
+          //Serial.println(input_number);
+          
+          input_string = "";
       }
     }
     
@@ -79,12 +111,9 @@ void loop() {
     Serial.write('X');
   }
   
-  if(false)
-  {
-    theta1 += 1;
-    theta2 += 1;
-    theta3 += 1;
-    
+  if((theta1 >= 0) && (theta2 >= 0) && (theta3 >= 0))
+  {    
+    //delay(5000);
     if(theta1 < 0) theta1 = 0;
     if(theta2 < 0) theta2 = 0;
     if(theta3 < 0) theta3 = 0;
@@ -95,7 +124,7 @@ void loop() {
     drive_joints();
   }
 
-  Serial.write('X');
+  //Serial.write('X');
 }
 
 /* drive_joints() simply moves servos 1 and 2 */
@@ -104,6 +133,9 @@ void drive_joints() {
   servo2.write(theta2);
   servo3.write(theta3);
     
+  theta1 = -1;
+  theta2 = -1;  
+  theta3 = -1;
   //Serial.print(theta1);  Serial.print(",");   Serial.print(theta2);  Serial.print(",");  Serial.println(theta3);
-  delay(1000);
+  //delay(1000);
 }
