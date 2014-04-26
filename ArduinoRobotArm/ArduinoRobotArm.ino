@@ -65,22 +65,22 @@ void loop() {
           
           //> for continue writing input value
          //Serial.write('>');
-          Serial.write(input_character);
+          //Serial.write(input_character);
         }
       }
       
-      delay(1000);
+      delay(100);
       //int length = input_string.length();
 
       //Serial.println(length);
-      Serial.println(theta_selection);
+      //Serial.println(theta_selection);
       
       if(input_string.length() > 0)
       {
           char floatbuf[32];
           input_string.toCharArray(floatbuf, sizeof(floatbuf));
           float input_number = atof(floatbuf);
-          Serial.write(theta_selection);
+          //Serial.write(theta_selection);
           
           if(theta_selection == 'A')
           {
