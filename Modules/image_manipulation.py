@@ -49,7 +49,7 @@ def parse_image(image_location):
                 dX = x_index
                 dY = y_index
                 
-                parse_recursive(y_index, x_index, recursion_level, line_X, line_Y)
+                parse_recursive(y_index, x_index, recursion_level, line_X, line_Y, input_direction=1)
                 parse_list.append((line_X,line_Y))
                 
                 # print "Finished Line\n"
@@ -61,9 +61,11 @@ def parse_image(image_location):
 # recursively determine if the points surrounding the current point should be added to current line
 # uses a pre-defined thresh hold limit
 
-def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y):    
+def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_direction):    
     # store current input
     # if(np.sqrt((input_x - dX)**2 + (input_y - dY)**2)>dT) or (recursion_level==0):
+    
+    #if current point is first point, add this point
     if(recursion_level==0):
         # store current input
         line_X.append((input_x)/scale_factor)
@@ -87,19 +89,124 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y):
         #     
         #     
         #     
-     
-        # print recursion_level
-#         if input_x < x_max-1 and sum(read_image[input_y][input_x + 1])/4 <= threshhold:
-        if check_right(input_x, input_y):
-            # print "right"
-            parse_recursive(input_y, input_x + 1, recursion_level, line_X, line_Y)
-        else:
-            # store current input
+        
+        #keeps track of how many directions have been checked, breaking when > 8
+        directions_checked = 0
+        
+        #keeps track of current direction
+        current_direction = input_direction
+        
+        #keeps track of whether the next point has been found
+        point_found = False
+             
+        while(directions_checked <= 8 and point_found==False):
+            if(check_dict[current_direction](input_x, input_y)):
+                #if the line changes direction, add that corner point
+                if(current_direction!=input_direction):
+                    line_X.append((input_x)/scale_factor)
+                    line_Y.append((len(read_image) - input_y)/scale_factor)
+                    
+                point_found = True
+                move_dict[current_direction](input_x, input_y, recursion_level, line_X, line_Y, current_direction)
+            else:
+                #increment the number of directions checked as well as the next direction to check
+                directions_checked += 1
+                
+                if(current_direction < 8):
+                    current_direction += 1
+                else:
+                    current_direction = 1
+        
+        #if the current point is last point, add the final point
+        if(point_found==False):
             line_X.append((input_x)/scale_factor)
             line_Y.append((len(read_image) - input_y)/scale_factor)
+        
+#         # print recursion_level
+#         if check_right(input_x, input_y):
+#             move_right(input_x, input_y, recursion_level, line_X, line_Y, curr_direction)
+#         else:
+#             # store current input
+#             line_X.append((input_x)/scale_factor)
+#             line_Y.append((len(read_image) - input_y)/scale_factor)
+
+    return True
 
 def check_right(input_x, input_y):
     return (True if input_x < x_max-1 and sum(read_image[input_y][input_x + 1])/4 <= threshhold else False)    
+
+def check_bot_right(input_x, input_y):
+    return (True if input_x < x_max-1 and input_y < y_max-1 and sum(read_image[input_y + 1][input_x + 1])/4 <= threshhold else False)      
+
+def check_bot(input_x, input_y):
+    return (True if input_y < y_max-1 and sum(read_image[input_y + 1][input_x])/4 <= threshhold else False)       
+
+def check_bot_left(input_x, input_y):
+    return (True if input_y < y_max-1 and input_x > x_min and sum(read_image[input_y + 1][input_x - 1])/4 <= threshhold else False)       
+
+def check_left(input_x, input_y):
+    return (True if input_x > x_min and sum(read_image[input_y][input_x - 1])/4 <= threshhold else False)    
+
+def check_top_left(input_x, input_y):
+    return (True if input_y > y_min and input_x > x_min and sum(read_image[input_y - 1][input_x - 1])/4 <= threshhold else False)
+
+def check_top(input_x, input_y):
+    return (True if input_y > y_min and sum(read_image[input_y - 1][input_x])/4 <= threshhold else False)    
+
+def check_top_right(input_x, input_y):
+    return (True if input_y > y_min and input_x < x_max-1 and sum(read_image[input_y - 1][input_x + 1])/4 <= threshhold else False)    
+
+def move_right(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y, input_x + 1, recursion_level, line_X, line_Y, current_direction)
+
+def move_bot_right(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y + 1, input_x + 1, recursion_level, line_X, line_Y, current_direction)   
+
+def move_bot(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y + 1, input_x, recursion_level, line_X, line_Y, current_direction)
+
+def move_bot_left(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y + 1, input_x - 1, recursion_level, line_X, line_Y, current_direction)    
+
+def move_left(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y, input_x - 1, recursion_level, line_X, line_Y, current_direction)
+
+def move_top_left(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y - 1, input_x - 1, recursion_level, line_X, line_Y, current_direction)
+
+def move_top(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y - 1, input_x, recursion_level, line_X, line_Y, current_direction)
+
+def move_top_right(input_x, input_y, recursion_level, line_X, line_Y, current_direction):
+    return parse_recursive(input_y - 1, input_x + 1, recursion_level, line_X, line_Y, current_direction)
+
+check_dict = {
+              #direction number: corresponding function
+              #function call:
+              #    check_dict[direction number](input_x, input_y)
+              1: check_right,
+              2: check_bot_right,
+              3: check_bot,
+              4: check_bot_left,
+              5: check_left,
+              6: check_top_left,
+              7: check_top,
+              8: check_top_right,
+          }
+
+move_dict = {
+              #direction number: corresponding function
+              #function call:
+              #    move_dict[direction number](input_x, input_y, recursion_level, line_X, line_Y)
+              1: move_right,
+              2: move_bot_right,
+              3: move_bot,
+              4: move_bot_left,
+              5: move_left,
+              6: move_top_left,
+              7: move_top,
+              8: move_top_right,
+          }
 
 if __name__ == "__main__":
     print "This module is intended to suplement the RobotArmV1 script."
