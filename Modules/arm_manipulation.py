@@ -2,7 +2,7 @@ import numpy as np
 
 rad2deg = 180/np.pi
 
-pen_down  = np.radians(87)     #angle when pen is down
+pen_down  = np.radians(92)     #angle when pen is down
 pen_up = 0                  #angle when pen is up
 
 arm1 = 100.0             #The length of arm 1 
@@ -17,7 +17,7 @@ def get_angles(Px, Py):
     # first find theta2 where c2 = cos(theta2) and s2 = sin(theta2)
     c2 = (Px**2 + Py**2 - arm1**2 - arm2**2)/(2*arm1*arm2) #is btwn -1 and 1
     s2 = np.sqrt(1 - c2**2) #sqrt can be + or -, and each corresponds to a different orientation
-    theta2 = np.degrees(np.arctan2(s2,c2)) # solves for the angle in degrees and places in correct quadrant
+    theta2 = np.degrees(np.arctan2(s2,c2)) - 34.56 # solves for the angle in degrees and places in correct quadrant
     theta1 = np.degrees(np.arctan2(-arm2*s2*Px + (arm1 + arm2*c2)*Py, (arm1 + arm2*c2)*Px + arm2*s2*Py))
 
     return theta1, theta2

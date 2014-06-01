@@ -12,8 +12,14 @@ scale_factor = 1.0      #Scale the image dimensions
 arm1 = 100.0             #The length of arm 1 
 arm2 = 100.0             #The length of arm 2 
 
+particle_list = []          
 line_list = []          #data structure to contain list of line objects in addition to list of lines that compose the image
 parse_list = []         #data structure to store list of lines that compose the image
+
+draw_lines = True
+# draw_lines = False
+draw_particles = True
+# draw_particles = False
 
 fig = plt.figure()  
 
@@ -43,17 +49,26 @@ def init():
 #     ax = plt.axes(xlim=(-1, len(read_image[0])/scale_factor) , ylim=(0,  1+ len(read_image)/scale_factor))
     ax = plt.axes(xlim=(-1, 100) , ylim=(0, 100))
 
-    for x_list, y_list in parse_list:
-        anim_line, = ax.plot([], [], lw=2)
-                                                                                                         
-        line_list.append((x_list, y_list, anim_line))
-    
     # line.set_data([], [])
     
     return_line = []
-    for x_list, y_list, anim_line in line_list:
-        anim_line.set_data(x_list, y_list)
-        return_line.append(anim_line)
+    if draw_lines:
+        for x_list, y_list in parse_list:
+                anim_line, = ax.plot([], [], lw=2)                                                
+                line_list.append((x_list, y_list, anim_line))
+                
+        for x_list, y_list, anim_line in line_list:
+            anim_line.set_data(x_list, y_list)
+            return_line.append(anim_line)
+        
+    if draw_particles:   
+        for x_list, y_list in parse_list:
+            anim_particle, = ax.plot([], [], 'bo')
+            particle_list.append((x_list, y_list, anim_particle))
+            
+        for x_list, y_list, anim_particle in particle_list:
+            anim_particle.set_data(x_list, y_list)
+            return_line.append(anim_particle)
     
     return tuple(return_line)
     # return line, 
@@ -63,9 +78,16 @@ def init():
 def animate(i):
     return_line = []
     print i
-    for x_list, y_list, anim_line in line_list:
-        anim_line.set_data(x_list, y_list)
-        return_line.append(anim_line)
+    
+    if draw_lines:
+        for x_list, y_list, anim_line in line_list:
+            anim_line.set_data(x_list, y_list)
+            return_line.append(anim_line)
+
+    if draw_particles:           
+        for x_list, y_list, anim_particle in particle_list:
+            anim_particle.set_data(x_list, y_list)
+            return_line.append(anim_particle)
         
     return tuple(return_line)
     # return line,
