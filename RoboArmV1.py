@@ -34,8 +34,12 @@ from Modules import arm_simulation as a_s
 from Modules import image_manipulation as i_m
 import serial
 import numpy as np
+import time
 
-image_location = 'images\\sb_small.png'
+# image_location = 'images\\sb_small.png'
+# image_location = 'images\\bernese2.png'
+# image_location = 'images\\test_imageIssa.png'
+image_location = 'images\\test_image13.png'
 
 read_image = []           
 parse_list = []           #data structure to store list of lines that compose the image
@@ -44,19 +48,12 @@ parse_list = []           #data structure to store list of lines that compose th
 read_image, parse_list = i_m.parse_image(image_location)
 # read_image, parse_list = a_s.test_image()
 
-# line_X = [10,20,30,40,30,20,10,10,20,30,40,30,20,10,10,20,30,40,30,20,10]
-# line_Y = [10,10,10,10,10,10,10,20,20,20,20,20,20,20,30,30,30,30,30,30,30]
-#       
-# parse_list.append((line_X,line_Y))
-# read_image.append((line_X,line_Y))
-# read_image, parse_list = a_s.test_image()
-
 a_s.display_image(input_image = read_image, input_parse_list = parse_list)
 # #  
 angle_list = a_m.generate_arm_angles(parse_list)
-angle_list = []
+# angle_list = []
 # #      
-a_s.simulate_arm(input_angle_list = angle_list)
+# a_s.simulate_arm(input_angle_list = angle_list)
 
 if(1 != 1):
     serial_connection = serial.Serial("COM4", 9600)
@@ -71,43 +68,37 @@ if(1 != 1):
         connected = True
          
     count = 0
-
+    theta1 = 90
              
     for theta1, theta2, theta3, xi, yi in angle_list:
-        if(count >= 0):
-            # corrects theta1 so angle is in a quadrant that the arm can reach
-    #         print theta1
-            theta1 += 90
-                 
-            # corrects theta2 for offset of pen from center of arm
-    #         theta2 += 34.56
-                 
-    #         if theta3 == 0:
-    #             print "\nNew Line"
-                 
-    #         print count, ":\t[", theta1,",", theta2,",", theta3,"]"
-                 
-            x1 = a_m.arm1*np.cos(np.radians(theta1))
-            y1 = a_m.arm1*np.sin(np.radians(theta1))
-            xp = a_m.arm2*np.cos(np.radians(theta1 + theta2))
-            yp = a_m.arm2*np.sin(np.radians(theta1 + theta2))
-                 
-            x2 = x1 + xp
-            y2 = y1 + yp
-                 
-    #         print "Theta1\t", theta1," (", x1,", ", y1,")"
-    #         print "Theta2\t", theta2," (", x2,", ", y2,")\n"
-            print count, ":\t[", theta1,",", theta2,",", theta3,"] => (", x2,", ", y2,")\n"
-                 
-            a_m.write_angle('A', theta1, serial_connection)
-            a_m.write_angle('B', theta2, serial_connection)
-            a_m.write_angle('C', theta3, serial_connection)
-                 
-    #         string = count, ":\t[", theta1,",", theta2,",", theta3,"] => (", x2,", ", y2,")\n"
-    #         raw_input(string)
-                 
-                 
-            count += 1
+#     while(count <= 10) and theta1<160:
+
+#         theta1 = 00
+#         theta2 = 45
+#         theta3 = 90
+#         theta1 = int(raw_input('Theta1?'))
+# #         theta2 = int(raw_input('Theta2?'))
+#         theta3 = int(raw_input('Theta3?'))
+             
+        x1 = a_m.arm1*np.cos(np.radians(theta1))
+        y1 = a_m.arm1*np.sin(np.radians(theta1))
+        xp = a_m.arm2*np.cos(np.radians(theta1 + theta2))
+        yp = a_m.arm2*np.sin(np.radians(theta1 + theta2))
+             
+        x2 = x1 + xp
+        y2 = y1 + yp
+             
+        print "[", theta1,",", theta2,",", theta3,"] => (", '%.1f' % round(x2, 2),", ", '%.1f' % round(y2, 2),"), "
+#             print "(", '%.1f' % round(x2, 2),", ", '%.1f' % round(y2, 2),"), "
+              
+        a_m.write_angle('A', theta1, serial_connection)
+        a_m.write_angle('B', theta2, serial_connection)
+        a_m.write_angle('C', theta3, serial_connection)
+        
+#         raw_input('Next?')
+        
+        count += 1
+        time.sleep(0.1)
          
     # close the port and end the program
     serial_connection.close()

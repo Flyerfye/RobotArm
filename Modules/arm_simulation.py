@@ -3,8 +3,8 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 import numpy as np
 
-frames = 8            #The total length of time the animation runs for
-interval = 2000           #The interval between animation actions
+frames = 80            #The total length of time the animation runs for
+interval = 500           #The interval between animation actions
 particles_size = 3      #Size of particles displayed
 read_image = []         #image passed in to the display function
 scale_factor = 1.0      #Scale the image dimensions
@@ -19,7 +19,8 @@ parse_list = []         #data structure to store list of lines that compose the 
 draw_lines = True
 # draw_lines = False
 draw_particles = True
-# draw_particles = False
+
+draw_particles = False
 
 fig = plt.figure()  
 
@@ -78,15 +79,24 @@ def init():
 def animate(i):
     return_line = []
     print i
+
+    start_point = 1
+    end_point = i
+
+    if(end_point>4):
+#         start_point = end_point - 4
+        start_point = 1
+    else:
+        start_point = 1
     
     if draw_lines:
         for x_list, y_list, anim_line in line_list:
-            anim_line.set_data(x_list, y_list)
+            anim_line.set_data(x_list[start_point:end_point], y_list[start_point:end_point])
             return_line.append(anim_line)
 
     if draw_particles:           
         for x_list, y_list, anim_particle in particle_list:
-            anim_particle.set_data(x_list, y_list)
+            anim_particle.set_data(x_list[start_point:end_point], y_list[start_point:end_point])
             return_line.append(anim_particle)
         
     return tuple(return_line)
@@ -140,7 +150,7 @@ def init_sim():
    
     # First set up the figure, the axis, and the plot element we want to animate
 #     ax = plt.axes(xlim=(-1, len(arm_position_list[0])/scale_factor) , ylim=(0,  1+ len(arm_position_list)/scale_factor))
-    ax = plt.axes(xlim=(-100, 100) , ylim=(-100, 100))
+    ax = plt.axes(xlim=(-200, 100) , ylim=(-200, 100))
 
     for x_list, y_list in arm_position_list:
         anim_line, = ax.plot([], [], lw=2)
@@ -161,12 +171,21 @@ def init_sim():
 def animate_arm(i):
     return_line = []
     print i
+
+    start_point = 1
+    end_point = i
+
+    if(end_point>4):
+        start_point = end_point - 4
+    else:
+        start_point = 1
+        
     if i == 0:
-        for x_list, y_list, anim_line in line_list:
+        for x_list, y_list, anim_line in line_list[start_point:end_point]:
             anim_line.set_data([], [])
             return_line.append(anim_line)
     else:    
-        for x_list, y_list, anim_line in line_list[0:i]:
+        for x_list, y_list, anim_line in line_list[start_point:end_point]:
 #             print np.floor(x_list), np.floor(y_list), "\n"
             print x_list, y_list, "\n"
             anim_line.set_data(x_list, y_list)

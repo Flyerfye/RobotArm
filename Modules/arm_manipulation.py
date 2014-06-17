@@ -2,22 +2,26 @@ import numpy as np
 
 rad2deg = 180/np.pi
 
-pen_down  = np.radians(92)     #angle when pen is down
-pen_up = 0                  #angle when pen is up
+pen_down  = np.radians(60)     #angle when pen is down
+pen_up = np.radians(150)                  #angle when pen is up
 
-arm1 = 100.0             #The length of arm 1 
-arm2 = 100.0             #The length of arm 2 
+arm1 = 57.1             #The length of arm 1 
+arm2 = 57.1              #The length of arm 2 
 
 angle_list = []           #data structure to store servo angles for robotic arm
 
 
 def get_angles(Px, Py):
-    global arm1, arm2
+    global arm1, arm2 
+    Px += 20
+    Py += 20
+    Px = -Px
+#     Py = -Py
 
     # first find theta2 where c2 = cos(theta2) and s2 = sin(theta2)
     c2 = (Px**2 + Py**2 - arm1**2 - arm2**2)/(2*arm1*arm2) #is btwn -1 and 1
     s2 = np.sqrt(1 - c2**2) #sqrt can be + or -, and each corresponds to a different orientation
-    theta2 = np.degrees(np.arctan2(s2,c2)) - 34.56 # solves for the angle in degrees and places in correct quadrant
+    theta2 = np.degrees(np.arctan2(s2,c2)) #- 34.56 # solves for the angle in degrees and places in correct quadrant
     theta1 = np.degrees(np.arctan2(-arm2*s2*Px + (arm1 + arm2*c2)*Py, (arm1 + arm2*c2)*Px + arm2*s2*Py))
 
     return theta1, theta2
@@ -50,7 +54,7 @@ def generate_arm_angles(parse_list):
         append_angle(theta1pos,theta2pos,theta3pos, x_init, y_init)
                 
         while index < len(y_list):
-            print ("X Coord: %.2f\tY Coord: %.2f") % (x_list[index], y_list[index])
+#             print ("X Coord: %.2f\tY Coord: %.2f") % (x_list[index], y_list[index])
             
             theta3pos = pen_down
             theta1pos, theta2pos = get_angles(x_list[index], y_list[index])

@@ -66,16 +66,18 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
     # if(np.sqrt((input_x - dX)**2 + (input_y - dY)**2)>dT) or (recursion_level==0):
     
     #if current point is first point, add this point
-    if(recursion_level==0):
-        # store current input
-        line_X.append((input_x)/scale_factor)
-        line_Y.append((len(read_image) - input_y)/scale_factor)
+#     if(recursion_level==0):
+#         # store current input
+#         line_X.append((input_x)/scale_factor)
+#         line_Y.append((len(read_image) - input_y)/scale_factor)
         
+    line_X.append((input_x)/scale_factor)
+    line_Y.append((len(read_image) - input_y)/scale_factor)
 #         dX = input_x
 #         dY = input_y
-    
-    #erase from image array
-    read_image[input_y][input_x] = [1, 1, 1, 1]
+    if recursion_level > 0:
+        #erase from image array
+        read_image[input_y][input_x] = [1, 1, 1, 1]
     
     if(recursion_level < max_recursion):
         recursion_level += 1
@@ -86,9 +88,6 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
         #     Will continue heading right until no longer able
         #     Starts searching clockwise for next point
         #     When next point is found, will continue in that direction until no longer able 
-        #     
-        #     
-        #     
         
         #keeps track of how many directions have been checked, breaking when > 8
         directions_checked = 0
@@ -102,9 +101,9 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
         while(directions_checked <= 8 and point_found==False):
             if(check_dict[current_direction](input_x, input_y)):
                 #if the line changes direction, add that corner point
-                if(current_direction!=input_direction):
-                    line_X.append((input_x)/scale_factor)
-                    line_Y.append((len(read_image) - input_y)/scale_factor)
+#                 if(current_direction!=input_direction):
+#                     line_X.append((input_x)/scale_factor)
+#                     line_Y.append((len(read_image) - input_y)/scale_factor)
                     
                 point_found = True
                 move_dict[current_direction](input_x, input_y, recursion_level, line_X, line_Y, current_direction)
@@ -118,19 +117,12 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
                     current_direction = 1
         
         #if the current point is last point, add the final point
-        if(point_found==False):
-            line_X.append((input_x)/scale_factor)
-            line_Y.append((len(read_image) - input_y)/scale_factor)
-        
-#         # print recursion_level
-#         if check_right(input_x, input_y):
-#             move_right(input_x, input_y, recursion_level, line_X, line_Y, curr_direction)
-#         else:
-#             # store current input
+#         if(point_found==False):
 #             line_X.append((input_x)/scale_factor)
 #             line_Y.append((len(read_image) - input_y)/scale_factor)
 
     return True
+
 
 def check_right(input_x, input_y):
     return (True if input_x < x_max-1 and sum(read_image[input_y][input_x + 1])/4 <= threshhold else False)    
