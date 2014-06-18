@@ -65,16 +65,13 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
     # store current input
     # if(np.sqrt((input_x - dX)**2 + (input_y - dY)**2)>dT) or (recursion_level==0):
     
-    #if current point is first point, add this point
-#     if(recursion_level==0):
-#         # store current input
-#         line_X.append((input_x)/scale_factor)
-#         line_Y.append((len(read_image) - input_y)/scale_factor)
-        
+    #if current point is first point, add this point        
     line_X.append((input_x)/scale_factor)
     line_Y.append((len(read_image) - input_y)/scale_factor)
 #         dX = input_x
 #         dY = input_y
+
+    #by not erasing the first point, the lines drawn tend to be more contiguous
     if recursion_level > 0:
         #erase from image array
         read_image[input_y][input_x] = [1, 1, 1, 1]
@@ -115,11 +112,6 @@ def parse_recursive(input_y, input_x, recursion_level, line_X, line_Y, input_dir
                     current_direction += 1
                 else:
                     current_direction = 1
-        
-        #if the current point is last point, add the final point
-#         if(point_found==False):
-#             line_X.append((input_x)/scale_factor)
-#             line_Y.append((len(read_image) - input_y)/scale_factor)
 
     return True
 

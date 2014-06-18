@@ -2,8 +2,17 @@ import numpy as np
 
 rad2deg = 180/np.pi
 
-pen_down  = np.radians(60)     #angle when pen is down
-pen_up = np.radians(150)                  #angle when pen is up
+# pen_down  = np.radians(60)     #angle when pen is down
+# pen_up = np.radians(150)                  #angle when pen is up
+pen_down  = 60    #angle when pen is down
+pen_up = 150                  #angle when pen is up
+
+theta1_min = 0
+theta1_max = 180
+theta2_min = 0
+theta2_max = 145
+theta3_min = 60
+theta3_max = 150
 
 arm1 = 57.1             #The length of arm 1 
 arm2 = 57.1              #The length of arm 2 
@@ -11,26 +20,53 @@ arm2 = 57.1              #The length of arm 2
 angle_list = []           #data structure to store servo angles for robotic arm
 
 
-def get_angles(Px, Py):
-    global arm1, arm2 
-    Px += 20
-    Py += 20
-    Px = -Px
-#     Py = -Py
+def get_angles(Pxi, Pyi):
+    global arm1, arm2
+    
+    Pxf = 0
+    Pyf = 0
+        
+        
+    # rotate each point 90 degrees (pi/2) to accommodate the drawing capabilities of the arm
+    sin_value = np.sin(np.pi/2);
+    cos_value = np.cos(np.pi/2);
+    
+    # translate point back to origin:
+    Pxf -= Pxi;
+    Pyf -= Pyi;
+    
+    xnew = Pxf * cos_value + Pyf * sin_value;
+    ynew = -Pxf * sin_value + Pyf * cos_value;
+    
+    # translate point back:
+    Pxf = xnew + Pxi;
+    Pyf = ynew + Pyi;
+  
+#     offset to compensate for arm equations assuming unlimited rotational freedom of arm servos
+#     Pxf += arm1 + arm2
+#     Pxf += 20
+#     Pyf += 20
+#     Pxf = -Pxf
+#     Pyf = -Pyf
 
     # first find theta2 where c2 = cos(theta2) and s2 = sin(theta2)
-    c2 = (Px**2 + Py**2 - arm1**2 - arm2**2)/(2*arm1*arm2) #is btwn -1 and 1
+    c2 = (Pxf**2 + Pyf**2 - arm1**2 - arm2**2)/(2*arm1*arm2) #is btwn -1 and 1
+#     print c2
     s2 = np.sqrt(1 - c2**2) #sqrt can be + or -, and each corresponds to a different orientation
     theta2 = np.degrees(np.arctan2(s2,c2)) #- 34.56 # solves for the angle in degrees and places in correct quadrant
-    theta1 = np.degrees(np.arctan2(-arm2*s2*Px + (arm1 + arm2*c2)*Py, (arm1 + arm2*c2)*Px + arm2*s2*Py))
+    theta1 = np.degrees(np.arctan2(-arm2*s2*Pxf + (arm1 + arm2*c2)*Pyf, (arm1 + arm2*c2)*Pxf + arm2*s2*Pyf))
 
     return theta1, theta2
 
 # takes as input the parse_list containing lines that compose the parsed image
 # generates a list of angles for the three servos of the robot arm
 def generate_arm_angles(parse_list):
-    global pen_up, pen_down
+    global pen_up, pen_down, angle_list
 
+    #makes sure the angle list is empty before beginning
+#     angle_list = []
+    del angle_list
+    angle_list = []
     
     # angle_list
     for x_list, y_list in parse_list:
@@ -76,6 +112,15 @@ def generate_arm_angles(parse_list):
     return angle_list
 
 def append_angle(theta1 = -1, theta2 = -1, theta3 = -1, x=-1, y=-1):
+    if(theta1 < theta1_min or theta1 > theta1_max):
+        print "Theta1 value is out of bounds: " + str(theta1_min) + " <? " + str(theta1) + " <? " + str(theta1_max)  
+        
+    if(theta2 < theta2_min or theta2 > theta2_max):
+        print "Theta2 value is out of bounds: " + str(theta2_min) + " <? " + str(theta2) + " <? " + str(theta2_max)  
+        
+    if(theta3 < theta3_min or theta3 > theta3_max):
+        print "Theta3 value is out of bounds: " + str(theta3_min) + " <? " + str(theta3) + " <? " + str(theta3_max)  
+        
     theta1 = (np.floor(1 * theta1 * 100) / 100) #+ 90
     theta2 = (np.floor(1 * theta2 * 100) / 100) 
     theta3 = (np.floor(rad2deg * theta3 * 100) / 100)    

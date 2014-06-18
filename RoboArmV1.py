@@ -48,8 +48,8 @@ import time
 
 # image_location = 'images\\sb_small.png'
 # image_location = 'images\\bernese2.png'
-image_location = 'images\\test_imageIssa.png'
-# image_location = 'images\\test_image13.png'
+# image_location = 'images\\test_imageIssa.png'
+image_location = 'images\\test_image13.png'
 
 read_image = []           
 parse_list = []           #data structure to store list of lines that compose the image

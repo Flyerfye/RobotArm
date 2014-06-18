@@ -15,9 +15,9 @@ void setup() {
   servo1.attach(2,750,2200);
   servo2.attach(3,750,2200);
   servo3.attach(4,750,2200);
-  servo1.write(90);
-  servo2.write(90);
-  servo3.write(90);
+  //servo1.write(90);
+  //servo2.write(180);
+  servo3.write(150);
   
   pinMode(13, OUTPUT);
   
@@ -116,10 +116,10 @@ void loop() {
     //delay(5000);
     if(theta1 < 0) theta1 = 0;
     if(theta2 < 0) theta2 = 0;
-    if(theta3 < 0) theta3 = 0;
-    if(theta1 > 200) theta1 = 200;
-    if(theta2 > 200) theta2 = 200;
-    if(theta3 > 200) theta3 = 200;
+    if(theta3 < 60) theta3 = 60;
+    if(theta1 > 180) theta1 = 180;
+    if(theta2 > 145) theta2 = 145;
+    if(theta3 > 150) theta3 = 150;
    
     drive_joints();
   }
